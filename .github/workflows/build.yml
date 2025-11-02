@@ -1,0 +1,58 @@
+name: 🚀 Build & Test SignageVirtual Enterprise
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: signage
+          POSTGRES_PASSWORD: signage
+          POSTGRES_DB: signage_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U signage"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Build Backend (NestJS)
+        working-directory: backend
+        run: |
+          npm install
+          npm run build
+
+      - name: Build Frontend (React + Vite)
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Build Docker images
+        run: |
+          docker compose build
