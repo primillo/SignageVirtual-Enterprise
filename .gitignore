@@ -1,0 +1,17 @@
+﻿# Node
+node_modules/
+dist/
+.vscode/
+*.log
+.env
+.env.*
+!.env.example
+
+# Docker
+data/
+**/Dockerfile*
+**/.dockerignore
+
+# Sistema
+.DS_Store
+Thumbs.db
